@@ -21,27 +21,100 @@ public class MainActivity extends Activity {
     private static final int BG=Color.rgb(5,7,13), CARD=Color.rgb(14,18,28), CARD2=Color.rgb(18,23,35);
     private static final int WHITE=Color.rgb(242,245,252), MUTED=Color.rgb(145,155,176), CYAN=Color.rgb(70,215,255), PURPLE=Color.rgb(164,108,255), GREEN=Color.rgb(72,224,154);
     private SharedPreferences prefs; private EditText command; private TextView stateText; private OrbView orb;
-    private static int dp(int v){return Math.round(v*android.content.res.Resources.getSystem().getDisplayMetrics().density);}
+
+    private int dp(int v){return Math.round(v*getResources().getDisplayMetrics().density);}
     private GradientDrawable bg(int color,float r){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp((int)r));return d;}
     private GradientDrawable stroke(int fill,int line,float r){GradientDrawable d=bg(fill,r);d.setStroke(dp(1),line);return d;}
     private GradientDrawable gradient(int a,int b,float r){GradientDrawable d=new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{a,b});d.setCornerRadius(dp((int)r));return d;}
     private TextView text(String s,float size,int color){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);return t;}
     private Button button(String s){Button b=new Button(this);b.setText(s);b.setTextColor(WHITE);b.setTextSize(13);b.setAllCaps(false);b.setGravity(Gravity.CENTER);b.setPadding(dp(8),0,dp(8),0);b.setBackground(stroke(CARD2,Color.rgb(35,43,60),24));return b;}
-    private LinearLayout page(){LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(dp(20),dp(18),dp(20),dp(18));root.setBackgroundColor(BG);ScrollView sc=new ScrollView(this);sc.setFillViewport(true);sc.setBackgroundColor(BG);sc.addView(root,new ScrollView.LayoutParams(-1,-2));setContentView(sc);return root;}
+
+    private LinearLayout page(){
+        LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(dp(20),dp(18),dp(20),dp(24));root.setBackgroundColor(BG);
+        ScrollView sc=new ScrollView(this);sc.setFillViewport(true);sc.setBackgroundColor(BG);
+        sc.addView(root,new ScrollView.LayoutParams(-1,-2));setContentView(sc);return root;
+    }
     private void add(LinearLayout p,View v,int h,int top){LinearLayout.LayoutParams q=new LinearLayout.LayoutParams(-1,dp(h));q.topMargin=dp(top);p.addView(v,q);}
     private LinearLayout row(){LinearLayout r=new LinearLayout(this);r.setOrientation(LinearLayout.HORIZONTAL);r.setGravity(Gravity.CENTER_VERTICAL);return r;}
-    @Override public void onCreate(Bundle b){super.onCreate(b);prefs=getSharedPreferences(PREFS,MODE_PRIVATE);getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);if(prefs.contains(NAME))home();else onboarding();}
-    private void onboarding(){LinearLayout p=page();add(p,new Space(this),18,0);TextView l=text("I.N.F.A.",38,WHITE);l.setTypeface(null,1);l.setGravity(Gravity.CENTER);add(p,l,55,0);TextView sub=text("Intelligent Network & Functional Assistant",13,MUTED);sub.setGravity(Gravity.CENTER);add(p,sub,30,0);orb=new OrbView(this);add(p,orb,235,12);TextView w=text("Добро пожаловать",25,WHITE);w.setTypeface(null,1);w.setGravity(Gravity.CENTER);add(p,w,40,2);TextView d=text("Ваш персональный помощник для телефона.\nКоманды, файлы, заметки, поиск и автоматизация — в одном месте.",14,MUTED);d.setGravity(Gravity.CENTER);add(p,d,62,0);LinearLayout card=row();card.setPadding(dp(16),0,dp(16),0);card.setBackground(stroke(CARD,Color.rgb(38,47,66),22));EditText name=new EditText(this);name.setHint("Как вас зовут?");name.setHintTextColor(MUTED);name.setTextColor(WHITE);name.setTextSize(16);name.setSingleLine(true);name.setBackgroundColor(Color.TRANSPARENT);card.addView(name,new LinearLayout.LayoutParams(0,-1,1));add(p,card,56,10);Button start=button("Начать  →");start.setTextSize(15);start.setBackground(gradient(CYAN,PURPLE,26));add(p,start,56,12);TextView privacy=text("Данные профиля хранятся локально на телефоне.",11,Color.rgb(105,115,135));privacy.setGravity(Gravity.CENTER);add(p,privacy,26,8);start.setOnClickListener(v->{String n=name.getText().toString().trim();if(n.isEmpty()){name.setError("Введите имя");return;}prefs.edit().putString(NAME,n).apply();home();});fade(p);}
-    private void home(){LinearLayout p=page();LinearLayout top=row();TextView logo=text("I.N.F.A.",27,WHITE);logo.setTypeface(null,1);top.addView(logo,new LinearLayout.LayoutParams(0,dp(52),1));TextView online=text("● Онлайн",11,GREEN);online.setGravity(Gravity.CENTER);top.addView(online,new LinearLayout.LayoutParams(dp(72),dp(42)));Button help=button("?");help.setTextSize(17);help.setOnClickListener(v->help());top.addView(help,new LinearLayout.LayoutParams(dp(46),dp(46)));Button set=button("⚙");set.setTextSize(18);set.setOnClickListener(v->settings());top.addView(set,new LinearLayout.LayoutParams(dp(46),dp(46)));add(p,top,52,0);TextView g=text("Здравствуйте, "+prefs.getString(NAME,"друг")+"!",25,WHITE);g.setTypeface(null,1);add(p,g,38,12);add(p,text("Что хотите сделать сегодня?",14,MUTED),26,0);orb=new OrbView(this);add(p,orb,220,4);stateText=text("Готова к работе",14,MUTED);stateText.setGravity(Gravity.CENTER);add(p,stateText,28,0);LinearLayout input=row();input.setPadding(dp(8),dp(4),dp(8),dp(4));input.setBackground(stroke(CARD,Color.rgb(42,52,73),28));command=new EditText(this);command.setHint("Спросите I.N.F.A. или введите команду");command.setHintTextColor(MUTED);command.setTextColor(WHITE);command.setTextSize(14);command.setSingleLine(true);command.setBackgroundColor(Color.TRANSPARENT);input.addView(command,new LinearLayout.LayoutParams(0,dp(56),1));Button voice=button("🎙");voice.setOnClickListener(v->voice());input.addView(voice,new LinearLayout.LayoutParams(dp(48),dp(48)));Button send=button("↑");send.setBackground(gradient(CYAN,PURPLE,24));send.setOnClickListener(v->command(command.getText().toString()));LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(dp(48),dp(48));sp.leftMargin=dp(6);input.addView(send,sp);add(p,input,64,10);add(p,text("Возможности",14,MUTED),26,16);tiles(p,new String[]{"◉\nАссистент","▣\nФайлы","⌘\nАвтоматизация"},new View.OnClickListener[]{v->assistant(),v->files(),v->automation()});tiles(p,new String[]{"✎\nПамять","⌕\nИнтернет","⚙\nСистема"},new View.OnClickListener[]{v->notes(),v->web()},8);tiles(p,new String[]{"⌗\nКалькулятор","⏰\nНапоминания","❔\nВсе функции"},new View.OnClickListener[]{v->calc(),v->reminder(),v->help()},8);TextView hint=text("Локальная работа • без платного API",11,Color.rgb(95,105,125));hint.setGravity(Gravity.CENTER);add(p,hint,28,14);fade(p);}
-    private void tiles(LinearLayout p,String[] labels,View.OnClickListener[] a){tiles(p,labels,a,0);}
-    private void tiles(LinearLayout p,String[] labels,View.OnClickListener[] a,int top){LinearLayout r=row();for(int i=0;i<3;i++){Button b=button(labels[i]);b.setTextSize(12);b.setOnClickListener(a[i]);LinearLayout.LayoutParams q=new LinearLayout.LayoutParams(0,dp(78),1);if(i>0)q.leftMargin=dp(7);r.addView(b,q);}add(p,r,82,top);}
+
+    @Override public void onCreate(Bundle b){
+        super.onCreate(b);prefs=getSharedPreferences(PREFS,MODE_PRIVATE);
+        getWindow().setStatusBarColor(BG);getWindow().setNavigationBarColor(BG);
+        if(prefs.contains(NAME))home();else onboarding();
+    }
+
+    private void onboarding(){
+        LinearLayout p=page();
+        TextView l=text("I.N.F.A.",40,WHITE);l.setTypeface(null,1);l.setGravity(Gravity.CENTER);add(p,l,52,4);
+        TextView sub=text("Intelligent Network for File & Automation",13,MUTED);sub.setGravity(Gravity.CENTER);add(p,sub,30,0);
+        orb=new OrbView(this);add(p,orb,255,12);
+        TextView w=text("Добро пожаловать",26,WHITE);w.setTypeface(null,1);w.setGravity(Gravity.CENTER);add(p,w,42,4);
+        TextView d=text("Ваш персональный помощник для телефона.\nКоманды, файлы, заметки, поиск и автоматизация — в одном месте.",14,MUTED);d.setGravity(Gravity.CENTER);add(p,d,62,0);
+
+        LinearLayout card=row();card.setPadding(dp(16),0,dp(16),0);card.setBackground(stroke(CARD,Color.rgb(38,47,66),22));
+        EditText name=new EditText(this);name.setHint("Как вас зовут?");name.setHintTextColor(MUTED);name.setTextColor(WHITE);name.setTextSize(16);name.setSingleLine(true);name.setBackgroundColor(Color.TRANSPARENT);
+        card.addView(name,new LinearLayout.LayoutParams(0,-1,1));add(p,card,58,12);
+        Button start=button("Начать  →");start.setTextSize(15);start.setBackground(gradient(CYAN,PURPLE,26));add(p,start,58,12);
+        TextView privacy=text("Данные профиля хранятся локально на телефоне.",11,Color.rgb(105,115,135));privacy.setGravity(Gravity.CENTER);add(p,privacy,26,8);
+
+        start.setOnClickListener(v->{
+            String n=name.getText().toString().trim();
+            if(n.isEmpty()){name.setError("Введите имя");return;}
+            prefs.edit().putString(NAME,n).apply();
+            recreate();
+        });
+        fade(p);
+    }
+
+    private void home(){
+        LinearLayout p=page();
+        LinearLayout top=row();
+        TextView logo=text("I.N.F.A.",28,WHITE);logo.setTypeface(null,1);top.addView(logo,new LinearLayout.LayoutParams(0,dp(54),1));
+        TextView online=text("● Онлайн",11,GREEN);online.setGravity(Gravity.CENTER);top.addView(online,new LinearLayout.LayoutParams(dp(74),dp(42)));
+        Button help=button("?");help.setTextSize(17);help.setOnClickListener(v->help());top.addView(help,new LinearLayout.LayoutParams(dp(46),dp(46)));
+        Button set=button("⚙");set.setTextSize(18);set.setOnClickListener(v->settings());top.addView(set,new LinearLayout.LayoutParams(dp(46),dp(46)));add(p,top,54,0);
+
+        TextView g=text("Здравствуйте, "+prefs.getString(NAME,"друг")+"!",26,WHITE);g.setTypeface(null,1);add(p,g,40,14);
+        add(p,text("Что хотите сделать сегодня?",14,MUTED),26,0);
+        orb=new OrbView(this);add(p,orb,235,4);
+        stateText=text("Готова к работе",14,MUTED);stateText.setGravity(Gravity.CENTER);add(p,stateText,28,0);
+
+        LinearLayout input=row();input.setPadding(dp(8),dp(4),dp(8),dp(4));input.setBackground(stroke(CARD,Color.rgb(42,52,73),28));
+        command=new EditText(this);command.setHint("Спросите I.N.F.A. или введите команду");command.setHintTextColor(MUTED);command.setTextColor(WHITE);command.setTextSize(14);command.setSingleLine(true);command.setBackgroundColor(Color.TRANSPARENT);
+        input.addView(command,new LinearLayout.LayoutParams(0,dp(56),1));
+        Button voice=button("🎙");voice.setOnClickListener(v->voice());input.addView(voice,new LinearLayout.LayoutParams(dp(48),dp(48)));
+        Button send=button("↑");send.setBackground(gradient(CYAN,PURPLE,24));send.setOnClickListener(v->command(command.getText().toString()));LinearLayout.LayoutParams sp=new LinearLayout.LayoutParams(dp(48),dp(48));sp.leftMargin=dp(6);input.addView(send,sp);add(p,input,64,12);
+
+        add(p,text("Возможности",14,MUTED),26,18);
+        tiles(p,new String[]{"◉\nАссистент","▣\nФайлы","⌘\nАвтоматизация"},new View.OnClickListener[]{v->assistant(),v->files(),v->automation()},0);
+        tiles(p,new String[]{"✎\nПамять","⌕\nИнтернет","⚙\nСистема"},new View.OnClickListener[]{v->notes(),v->web(),v->phone()},8);
+        tiles(p,new String[]{"⌗\nКалькулятор","⏰\nНапоминания","❔\nВсе функции"},new View.OnClickListener[]{v->calc(),v->reminder(),v->help()},8);
+        TextView hint=text("Локальная работа • без платного API",11,Color.rgb(95,105,125));hint.setGravity(Gravity.CENTER);add(p,hint,28,16);
+        fade(p);
+    }
+
+    private void tiles(LinearLayout p,String[] labels,View.OnClickListener[] a,int top){
+        LinearLayout r=row();
+        for(int i=0;i<3;i++){Button b=button(labels[i]);b.setTextSize(12);b.setOnClickListener(a[i]);LinearLayout.LayoutParams q=new LinearLayout.LayoutParams(0,dp(82),1);if(i>0)q.leftMargin=dp(7);r.addView(b,q);}
+        add(p,r,86,top);
+    }
     private void fade(View v){v.setAlpha(0f);v.animate().alpha(1f).setDuration(450).setInterpolator(new DecelerateInterpolator()).start();}
+
     private void assistant(){dialog("◉ Ассистент","Текстовые и голосовые команды.\n\nПримеры:\n• Покажи информацию о телефоне\n• Открой Wi-Fi\n• Найди информацию о космосе\n• Создай заметку\n• Открой настройки");}
     private void automation(){dialog("⌘ Автоматизация","Конструктор сценариев I.N.F.A.: утро, учёба, ночь, запуск приложений и другие действия.");}
     private void files(){try{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("*/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,200);}catch(Exception e){toast("Файловый менеджер недоступен");}}
     private void voice(){Intent i=new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);i.putExtra(RecognizerIntent.EXTRA_LANGUAGE,"ru-RU");i.putExtra(RecognizerIntent.EXTRA_PROMPT,"Говорите с I.N.F.A.");try{stateText.setText("Слушаю вас…");orb.setMode(1);startActivityForResult(i,100);}catch(Exception e){toast("Голосовой ввод недоступен");}}
-    @Override protected void onActivityResult(int r,int c,Intent d){super.onActivityResult(r,c,d);if(r==100){if(c==RESULT_OK&&d!=null){ArrayList<String>x=d.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(x!=null&&!x.isEmpty()){command.setText(x.get(0));command(x.get(0));}}else{stateText.setText("Готова к работе");orb.setMode(0);}}}
-    private void command(String raw){String s=raw==null?"":raw.trim().toLowerCase(Locale.ROOT);if(s.isEmpty())return;stateText.setText("Обрабатываю запрос…");orb.setMode(2);if(s.contains("телефон")||s.contains("характеристик")||s.contains("памят")){phone();return;}if(s.contains("замет")||s.startsWith("запиши")){notes();return;}if(s.contains("дневник")){diary();return;}if(s.contains("напомин")){reminder();return;}if(s.contains("кальк")||s.matches(".*[0-9]+\\s*[+\\-*/].*")){calc();return;}if(s.contains("найди")||s.contains("поищи")||s.contains("интернет")){web(s);return;}if(s.contains("wi-fi")||s.contains("вайфай")){startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));done();return;}if(s.contains("bluetooth")||s.contains("блютуз")){startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));done();return;}if(s.contains("настройк")){startActivity(new Intent(Settings.ACTION_SETTINGS));done();return;}toast("Команда пока не подключена. Нажмите «?» для списка функций.");done();}
+    @Override protected void onActivityResult(int r,int c,Intent d){super.onActivityResult(r,c,d);if(r==100){if(c==RESULT_OK&&d!=null){ArrayList<String>x=d.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);if(x!=null&&!x.isEmpty()&&command!=null){command.setText(x.get(0));command(x.get(0));}}else{done();}}}
+
+    private void command(String raw){
+        String s=raw==null?"":raw.trim().toLowerCase(Locale.ROOT);if(s.isEmpty())return;stateText.setText("Обрабатываю запрос…");orb.setMode(2);
+        if(s.contains("телефон")||s.contains("характеристик")||s.contains("памят")){phone();return;}
+        if(s.contains("замет")||s.startsWith("запиши")){notes();return;}if(s.contains("дневник")){diary();return;}if(s.contains("напомин")){reminder();return;}
+        if(s.contains("кальк")||s.matches(".*[0-9]+\\s*[+\\-*/].*")){calc();return;}if(s.contains("найди")||s.contains("поищи")||s.contains("интернет")){web(s);return;}
+        if(s.contains("wi-fi")||s.contains("вайфай")){startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));done();return;}if(s.contains("bluetooth")||s.contains("блютуз")){startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS));done();return;}if(s.contains("настройк")){startActivity(new Intent(Settings.ACTION_SETTINGS));done();return;}
+        toast("Команда пока не подключена. Нажмите «?» для списка функций.");done();
+    }
     private void done(){if(stateText!=null)stateText.setText("Готова к работе");if(orb!=null)orb.setMode(0);}
     private EditText field(String hint){EditText e=new EditText(this);e.setHint(hint);e.setHintTextColor(MUTED);e.setTextColor(WHITE);e.setTextSize(15);e.setPadding(dp(18),dp(12),dp(18),dp(12));e.setMinLines(3);e.setBackground(stroke(CARD,Color.rgb(38,47,66),20));return e;}
     private void notes(){final EditText e=field("Текст заметки");e.setText(prefs.getString("note",""));new AlertDialog.Builder(this).setTitle("✎ Память").setView(e).setPositiveButton("Сохранить",(d,w)->{prefs.edit().putString("note",e.getText().toString()).apply();toast("Сохранено локально");done();}).setNegativeButton("Отмена",(d,w)->done()).show();}
@@ -55,8 +128,8 @@ public class MainActivity extends Activity {
     private void web(){web("");}
     private void web(String initial){final EditText e=field("Что найти в интернете?");if(initial.startsWith("найди")||initial.startsWith("поищи"))e.setText(initial.replaceFirst("^(найди|поищи)\\s*",""));new AlertDialog.Builder(this).setTitle("⌕ Интернет").setView(e).setPositiveButton("Искать",(d,w)->{String q=e.getText().toString().trim();if(!q.isEmpty())startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("https://www.google.com/search?q="+Uri.encode(q))));done();}).setNegativeButton("Отмена",(d,w)->done()).show();}
     private void help(){dialog("Все функции I.N.F.A.","◉ Ассистент — текст и голос\n▣ Файлы — открытие документов\n⌘ Автоматизация — сценарии\n✎ Память — заметки и дневник\n⌕ Интернет — поиск\n⚙ Система — сведения о телефоне\n⌗ Калькулятор — вычисления\n⏰ Напоминания — уведомления\n\nПопробуйте: «Инфа, покажи информацию о телефоне».");}
-    private void settings(){new AlertDialog.Builder(this).setTitle("⚙ Настройки I.N.F.A.").setItems(new String[]{"Изменить имя","Сбросить знакомство","О приложении"},(d,w)->{if(w==0)changeName();else if(w==1){prefs.edit().clear().apply();onboarding();}else dialog("I.N.F.A. 0.2.2","Intelligent Network & Functional Assistant\n\nФутуристический интерфейс · локальные данные · без платных API");}).show();}
-    private void changeName(){EditText e=field("Имя");e.setSingleLine();e.setText(prefs.getString(NAME,""));new AlertDialog.Builder(this).setTitle("Ваше имя").setView(e).setPositiveButton("Сохранить",(d,w)->{prefs.edit().putString(NAME,e.getText().toString().trim()).apply();home();}).setNegativeButton("Отмена",null).show();}
+    private void settings(){new AlertDialog.Builder(this).setTitle("⚙ Настройки I.N.F.A.").setItems(new String[]{"Изменить имя","Сбросить знакомство","О приложении"},(d,w)->{if(w==0)changeName();else if(w==1){prefs.edit().clear().apply();onboarding();}else dialog("I.N.F.A. 0.2.3","Intelligent Network for File & Automation\n\nФутуристический интерфейс · локальные данные · без платных API");}).show();}
+    private void changeName(){EditText e=field("Имя");e.setSingleLine();e.setText(prefs.getString(NAME,""));new AlertDialog.Builder(this).setTitle("Ваше имя").setView(e).setPositiveButton("Сохранить",(d,w)->{String n=e.getText().toString().trim();if(!n.isEmpty())prefs.edit().putString(NAME,n).apply();recreate();}).setNegativeButton("Отмена",null).show();}
     private void dialog(String title,String msg){new AlertDialog.Builder(this).setTitle(title).setMessage(msg).setPositiveButton("Понятно",null).show();}
     private void toast(String s){Toast.makeText(this,s,Toast.LENGTH_SHORT).show();}
 
@@ -64,6 +137,13 @@ public class MainActivity extends Activity {
         private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG);private float phase=0;private int mode=0;
         public OrbView(Context c){super(c);setLayerType(View.LAYER_TYPE_SOFTWARE,null);post(new Runnable(){public void run(){phase+=.055f;invalidate();postDelayed(this,16);}});}
         public void setMode(int m){mode=m;invalidate();}
-        @Override protected void onDraw(Canvas c){float cx=getWidth()/2f,cy=getHeight()/2f,base=Math.min(getWidth(),getHeight())*.30f;int glow=mode==1?CYAN:mode==2?PURPLE:CYAN;for(int i=4;i>=1;i--){p.setStyle(Paint.Style.FILL);p.setColor(Color.argb(16+i*8,glow,glow,255));p.setShadowLayer(dp(20+i*6),0,0,glow);c.drawCircle(cx,cy,base+i*dp(8)+(float)Math.sin(phase*1.4+i)*dp(3),p);}p.clearShadowLayer();p.setShader(new LinearGradient(cx-base,cy-base,cx+base,cy+base,new int[]{CYAN,PURPLE,CYAN},null,Shader.TileMode.CLAMP));c.drawCircle(cx,cy,base,p);p.setShader(null);p.setColor(BG);c.drawCircle(cx,cy,base-dp(7),p);p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(1));p.setColor(Color.argb(120,CYAN,CYAN,255));for(int r=1;r<=3;r++)c.drawCircle(cx,cy,base+r*dp(20)+(float)Math.sin(phase+r)*dp(2),p);p.setStrokeWidth(dp(2));p.setColor(Color.argb(170,WHITE,WHITE,255));Path wave=new Path();for(int x=0;x<=getWidth();x+=dp(8)){float y=cy+base+dp(30)+(float)Math.sin(x*.07+phase)*(mode==1?dp(15):dp(8));if(x==0)wave.moveTo(x,y);else wave.lineTo(x,y);}c.drawPath(wave,p);p.setStyle(Paint.Style.FILL);p.setColor(WHITE);p.setShadowLayer(dp(18),0,0,PURPLE);c.drawCircle(cx,cy,Math.max(dp(7),base*.12f),p);p.clearShadowLayer();}
+        @Override protected void onDraw(Canvas c){
+            float cx=getWidth()/2f,cy=getHeight()/2f,base=Math.min(getWidth(),getHeight())*.30f;int glow=mode==1?CYAN:mode==2?PURPLE:CYAN;
+            for(int i=4;i>=1;i--){p.setStyle(Paint.Style.FILL);p.setColor(Color.argb(16+i*8,Color.red(glow),Color.green(glow),Color.blue(glow)));p.setShadowLayer(dp(20+i*6),0,0,glow);c.drawCircle(cx,cy,base+i*dp(8)+(float)Math.sin(phase*1.4+i)*dp(3),p);}p.clearShadowLayer();
+            p.setShader(new LinearGradient(cx-base,cy-base,cx+base,cy+base,new int[]{CYAN,PURPLE,CYAN},null,Shader.TileMode.CLAMP));c.drawCircle(cx,cy,base,p);p.setShader(null);p.setColor(BG);c.drawCircle(cx,cy,base-dp(7),p);
+            p.setStyle(Paint.Style.STROKE);p.setStrokeWidth(dp(1));p.setColor(Color.argb(120,Color.red(CYAN),Color.green(CYAN),Color.blue(CYAN)));for(int r=1;r<=3;r++)c.drawCircle(cx,cy,base+r*dp(20)+(float)Math.sin(phase+r)*dp(2),p);
+            p.setStrokeWidth(dp(2));p.setColor(Color.argb(170,255,255,255));Path wave=new Path();for(int x=0;x<=getWidth();x+=dp(8)){float y=cy+base+dp(30)+(float)Math.sin(x*.07+phase)*(mode==1?dp(15):dp(8));if(x==0)wave.moveTo(x,y);else wave.lineTo(x,y);}c.drawPath(wave,p);
+            p.setStyle(Paint.Style.FILL);p.setColor(WHITE);p.setShadowLayer(dp(18),0,0,PURPLE);c.drawCircle(cx,cy,Math.max(dp(7),base*.12f),p);p.clearShadowLayer();
+        }
     }
 }
