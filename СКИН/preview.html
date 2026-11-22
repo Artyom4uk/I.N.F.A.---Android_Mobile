@@ -1,3 +1,8 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sniper Of Maze — 3D Skin Preview</title>
-<style>html,body{
+<style>html,body{margin:0;height:100%;background:#08090d;color:#eee;font:16px system-ui}main{height:100%;display:grid;place-items:center}section{width:min(94vw,900px);text-align:center}canvas{width:100%;height:min(72vh,680px);background:radial-gradient(ellipse,#222630,#08090d);border:1px solid #30343e;border-radius:14px}h1{letter-spacing:.12em}p{color:#aab0bd}</style></head>
+<body><main><section><h1>SNIPER <span style="color:#e21b2d">OF</span> MAZE</h1><canvas id="skin_canvas"></canvas><p>Перетаскивай мышью, чтобы вращать персонажа · Колесо — масштаб</p></section></main>
+<script src="https://cdn.jsdelivr.net/npm/skinview3d@3.2.0/bundles/skinview3d.bundle.js"></script><script>
+const viewer=new skinview3d.SkinViewer({canvas:document.getElementById('skin_canvas'),width:900,height:650,skin:'SniperOfMaze_EliteSkin_v2.png'});
+viewer.background='#101218'; viewer.controls.enableRotate=true; viewer.controls.enableZoom=true; viewer.camera.position.set(28,18,42); viewer.animation=new skinview3d.IdleAnimation();
+</script></body></html>
